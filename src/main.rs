@@ -2,6 +2,7 @@
 
 use std::fmt;
 use std::fs;
+use std::path::Path;
 use std::path::PathBuf;
 use std::str::FromStr;
 
@@ -34,6 +35,7 @@ struct Cli {
     commands: Commands,
 }
 
+#[allow(clippy::upper_case_acronyms)]
 #[derive(Subcommand)]
 enum Commands {
     /// Generates an SSH key pair
@@ -143,7 +145,7 @@ fn prompt_passphrase(passphrase_opt: Option<String>) -> anyhow::Result<String> {
     }
 }
 
-fn prompt_overwrite_path(path: &PathBuf) -> anyhow::Result<()> {
+fn prompt_overwrite_path(path: &Path) -> anyhow::Result<()> {
     if !path.exists() {
         return Ok(());
     }
