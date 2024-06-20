@@ -1,7 +1,7 @@
-#![feature(lazy_cell, split_array)]
+#![feature(lazy_cell, split_array, absolute_path,io_error_more)]
 
-use std::fmt;
 use std::fs;
+use std::path;
 use std::path::Path;
 use std::path::PathBuf;
 use std::str::FromStr;
@@ -14,18 +14,20 @@ use clap::Subcommand;
 use clap::ValueEnum;
 
 mod version;
+mod transaction;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 enum KeyType {
     Ed25519,
 }
 
-impl fmt::Display for KeyType {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+impl KeyType {
+    fn to_openssh_filename(&self) -> &'static str {
         match self {
-            KeyType::Ed25519 => write!(f, "ed25519"),
+            KeyType::Ed25519 => "id_ed25519.pub",
         }
     }
+
 }
 
 #[derive(Parser)]
@@ -49,12 +51,9 @@ enum Commands {
         /// Specify the passphrase, if empty it will be prompted
         #[arg(short, long, env, default_value = "")]
         passphrase: String,
-        /// Specify the output dir in which to save the key
-        #[arg(short='o', long, env, default_value_os_t = ssh_default_output_dir())]
-        output_dir: PathBuf,
-        /// Specify the file name in which to save the key
-        #[arg(short = 'f', long, default_value = "", env)]
-        output_name: String,
+        /// Specify the file path in which to save the key
+        #[arg(short = 'f', long, env)]
+        output_path: Option<PathBuf>,
         /// Specify the 12 words mnemonic, split by spaces. If not specified, it will be generated
         #[arg(short = 'm', long, env, default_value = "")]
         mnemonic: String,
@@ -71,8 +70,7 @@ fn main() -> anyhow::Result<()> {
             key_type,
             no_passphrase,
             passphrase,
-            output_dir,
-            mut output_name,
+            output_path,
             mnemonic: mnemonic_string,
             comment,
         } => {
@@ -84,6 +82,13 @@ fn main() -> anyhow::Result<()> {
             } else {
                 Some(passphrase)
             })?;
+
+            let prikey_path = prompt_output_path(output_path, key_type)?;
+            let pubkey_path = prikey_path.with_extension(".pub");
+
+            prompt_overwrite_path(&prikey_path)?;
+            prompt_overwrite_path(&pubkey_path)?;
+
             let seed = mnemonic.to_seed(passphrase);
             let (seed32, _) = seed.split_array_ref::<32>();
             let keypair = ssh_key::private::KeypairData::Ed25519(
@@ -95,29 +100,28 @@ fn main() -> anyhow::Result<()> {
             );
             let private_key = ssh_key::PrivateKey::new(keypair, comment)?;
 
-            if output_name.is_empty() {
-                output_name = format!("id_{key_type}");
-            }
+            // let mut fs_trans = tfio::Transaction::new();
+            // if let Some(dirname) = prikey_path.parent() {
+                // fs_trans =fs_trans.create_dir(dirname);
+            // }/
 
-            let public_key_path = output_dir.join(format!("{output_name}.pub"));
-            let private_key_path = output_dir.join(output_name);
-
-            prompt_overwrite_path(&public_key_path)?;
-            fs::write(public_key_path, public_key.to_openssh()?)?;
-
-            prompt_overwrite_path(&private_key_path)?;
-            fs::write(
-                private_key_path,
-                private_key.to_openssh(Default::default())?,
-            )?;
+            // fs::write(prikey_path, public_key.to_openssh()?)?;
+            // fs::write(
+            //     private_key_path,
+            //     private_key.to_openssh(Default::default())?,
+            // )?;
         }
     }
     Ok(())
 }
 
-fn ssh_default_output_dir() -> PathBuf {
+fn ssh_default_output_path(key_type: KeyType) -> PathBuf {
+    use std::path::MAIN_SEPARATOR;
+
     match home::home_dir() {
-        Some(path) if !path.as_os_str().is_empty() => path.join(".ssh"),
+        Some(path) if !path.as_os_str().is_empty() => {
+            path.join(format!(".ssh{MAIN_SEPARATOR}{}", key_type.to_openssh_filename()))
+        }
         _ => PathBuf::new(),
     }
 }
@@ -141,8 +145,28 @@ fn gpg_default_output_dir() -> PathBuf {
 fn prompt_passphrase(passphrase_opt: Option<String>) -> anyhow::Result<String> {
     match passphrase_opt {
         Some(passphrase) => Ok(passphrase),
-        None => Ok(inquire::Password::new("Enter passphrase (empty for no passphrase):").prompt()?),
+        None => Ok(
+            inquire::Password::new("Enter passphrase (empty for no passphrase):")
+                .with_display_mode(inquire::PasswordDisplayMode::Masked)
+                .prompt()?,
+        ),
     }
+}
+
+fn prompt_output_path(outpath: Option<PathBuf>, key_type: KeyType) -> anyhow::Result<PathBuf> {
+    let path = match outpath {
+        Some(path) => path,
+        None => {
+            let mut text = inquire::Text::new("Enter file in which to save the key");
+            let default_path = ssh_default_output_path(key_type);
+            if let Some(default) = default_path.to_str() {
+                text = text.with_default(default);
+            }
+            PathBuf::from(text.prompt()?)
+        }
+    };
+    Ok(path::absolute(path)?)
+
 }
 
 fn prompt_overwrite_path(path: &Path) -> anyhow::Result<()> {
