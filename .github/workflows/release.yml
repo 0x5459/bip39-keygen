@@ -9,6 +9,13 @@ on:
     paths:
     - '.github/workflows/release.yml'
 
+env:
+  # Preview mode: Publishes the build output as a CI artifact instead of creating
+  # a release, allowing for manual inspection of the output. This mode is
+  # activated if the CI run was triggered by events other than pushed tags, or
+  # if the repository is a fork.
+  preview: ${{ !startsWith(github.ref, 'refs/tags/') || github.repository != '0x5459/bip39-keygen' }}
+
 jobs:
   dist:
     name: Dist
@@ -57,7 +64,7 @@ jobs:
           target: ${{ matrix.target }}
 
       - name: Use Cross
-        uses: baptiste0928/cargo-install@v1
+        uses: baptiste0928/cargo-install@v3
         with:
           crate: cross
           cache-key: '${{ matrix.target }}'
@@ -123,7 +130,7 @@ jobs:
               if [[ $platform =~ "windows" ]]; then
                   exe=".exe"
               fi
-              pkgname=bip39-keygen-$GITHUB_REF_NAME-$platform
+              pkgname=bip39-keygen-${GITHUB_REF_NAME//\//-}-$platform
               mkdir -p $pkgname
               # cp $source/LICENSE $source/README.md $pkgname
 
@@ -139,6 +146,7 @@ jobs:
 
       - name: Upload binaries to release
         uses: termux/upload-release-action@v4.1.0
+        if: env.preview == 'false'
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: dist/*
