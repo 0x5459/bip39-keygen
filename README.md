@@ -1,7 +1,7 @@
 # Bip39-keygen
 ![CI](https://github.com/0x5459/bip39-keygen/actions/workflows/release.yml/badge.svg)
 
-A tool for converting BIP39 mnemonic phrases to SSH, GPG... key pairs.
+A tool for converting [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) mnemonic phrases to SSH, GPG... key pairs.
 
 ## Usage
 
@@ -38,10 +38,10 @@ Options:
 | ssh-rsa        |   🚧    |
 | gpg-rsa        |   🚧    |
 | gpg-elg        |   🚧    |
-| ssh-dsa        |   🚧    |
-| ssh-ecdh       |   🚧    |
-| ssh-ecdsa      |   🚧    |
-| ssh-eddsa      |   🚧    |
+| gpg-dsa        |   🚧    |
+| gpg-ecdh       |   🚧    |
+| gpg-ecdsa      |   🚧    |
+| gpg-eddsa      |   🚧    |
 
 
 #### License
