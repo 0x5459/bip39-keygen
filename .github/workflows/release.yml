@@ -146,6 +146,7 @@ jobs:
                   7z a -r dist/$pkgname.zip $pkgname
               fi
           done
+          mv dist $source/
 
       - name: Upload binaries to release
         uses: termux/upload-release-action@v4.1.0
