@@ -132,7 +132,7 @@ jobs:
               fi
               pkgname=bip39-keygen-${GITHUB_REF_NAME//\//-}-$platform
               mkdir -p $pkgname
-              # cp $source/LICENSE $source/README.md $pkgname
+              cp $source/LICENSE* $source/README.md $pkgname
 
               mv bins-$platform/bip39-keygen$exe $pkgname
               chmod +x $pkgname/bip39-keygen$exe
@@ -145,7 +145,7 @@ jobs:
           done
 
       - name: Upload binaries to release
-        uses: termux/upload-release-action@v4.2.0
+        uses: termux/upload-release-action@v4.1.0
         if: env.preview == 'false'
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
