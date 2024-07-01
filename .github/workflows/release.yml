@@ -145,7 +145,7 @@ jobs:
           done
 
       - name: Upload binaries to release
-        uses: termux/upload-release-action@v4.1.0
+        uses: termux/upload-release-action@v4.2.0
         if: env.preview == 'false'
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
