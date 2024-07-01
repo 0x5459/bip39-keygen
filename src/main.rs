@@ -25,7 +25,7 @@ enum KeyType {
 }
 
 impl KeyType {
-    fn to_openssh_filename(&self) -> &'static str {
+    fn as_openssh_filename(&self) -> &'static str {
         match self {
             KeyType::Ed25519 => "id_ed25519",
         }
@@ -128,7 +128,7 @@ fn ssh_default_output_path(key_type: KeyType) -> PathBuf {
     match home::home_dir() {
         Some(path) if !path.as_os_str().is_empty() => path.join(format!(
             ".ssh{MAIN_SEPARATOR}{}",
-            key_type.to_openssh_filename()
+            key_type.as_openssh_filename()
         )),
         _ => PathBuf::new(),
     }
