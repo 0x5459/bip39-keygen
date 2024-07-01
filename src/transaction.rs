@@ -353,11 +353,11 @@ mod tests {
         let contents1 = "hi".to_string();
         let contents2 = "ih".to_string();
         let filepath = &testdir.path().join("a");
-        fs::write(&filepath, &contents1).unwrap();
-        tx.write_file(&filepath, &contents2).unwrap();
+        fs::write(filepath, &contents1).unwrap();
+        tx.write_file(filepath, &contents2).unwrap();
         tx.commit();
 
-        assert_eq!(fs::read_to_string(&filepath).unwrap(), contents2);
+        assert_eq!(fs::read_to_string(filepath).unwrap(), contents2);
     }
 
     #[test]
@@ -373,10 +373,10 @@ mod tests {
         let contents1 = "hi".to_string();
         let contents2 = "ih".to_string();
         let filepath = &testdir.path().join("a");
-        fs::write(&filepath, &contents1).unwrap();
-        tx.write_file(&filepath, &contents2).unwrap();
+        fs::write(filepath, &contents1).unwrap();
+        tx.write_file(filepath, &contents2).unwrap();
         drop(tx);
 
-        assert_eq!(fs::read_to_string(&filepath).unwrap(), contents1);
+        assert_eq!(fs::read_to_string(filepath).unwrap(), contents1);
     }
 }
