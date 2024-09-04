@@ -11,7 +11,7 @@ home = "0.5.9"
 bip39 = { version = "2.0.0", features = ["rand", "zeroize"] }
 ssh-key = { version = "0.6.6", features = ["ed25519"] }
 ssh-encoding = "0.2.0"
-whoami = "1.5.1"
+whoami = "1.5.2"
 tempfile = "3"
 secrecy = "0.8.0"
 zeroize = "1.8.1"
