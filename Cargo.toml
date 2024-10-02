@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1"
-clap = { version = "4.5.17", features = ["derive", "env"] }
+clap = { version = "4.5.19", features = ["derive", "env"] }
 inquire = "0.7.5"
 home = "0.5.9"
 bip39 = { version = "2.0.0", features = ["rand", "zeroize"] }
