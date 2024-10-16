@@ -9,7 +9,7 @@ clap = { version = "4.5.17", features = ["derive", "env"] }
 inquire = "0.7.5"
 home = "0.5.9"
 bip39 = { version = "2.0.0", features = ["rand", "zeroize"] }
-ssh-key = { version = "0.6.6", features = ["ed25519"] }
+ssh-key = { version = "0.6.7", features = ["ed25519"] }
 ssh-encoding = "0.2.0"
 whoami = "1.5.2"
 tempfile = "3"
