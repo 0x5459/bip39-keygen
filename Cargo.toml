@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1"
 clap = { version = "4.5.23", features = ["derive", "env"] }
-inquire = "0.7.5"
+inquire = "0.8.1"
 home = "0.5.9"
 bip39 = { version = "2.2.2", features = ["rand", "zeroize"] }
 ssh-key = { version = "0.6.6", features = ["ed25519"] }
